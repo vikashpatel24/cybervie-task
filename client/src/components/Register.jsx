@@ -75,6 +75,11 @@ const Register = () => {
                 email: formData.email,
                 phone: formData.phone,
               });
+
+                axios.post(
+                "https://cybervie-backend.vercel.app/api/email",
+                formData
+              );
               if (response) navigate("/success");
             } catch (error) {
               console.error(error);
