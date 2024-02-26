@@ -5,6 +5,7 @@ const img = "https://drive.google.com/uc?id=1bRU9vOOSIK9IlX_XDpEnlQPRn-GOTq8b";
 const sendEmail = async (req, res) => {
   // console.log(req.body);
   const { name, email, phone } = req.body;
+  console.log(req.body)
 
   const { data, error } = await resend.emails.send({
     from: "CYBERVIE.COM <onboarding@resend.dev>",
