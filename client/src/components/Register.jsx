@@ -39,7 +39,7 @@ const Register = () => {
       const num = formData.phone;
       console.log(num);
 
-      const response = await axios.post("http://localhost:5000/generate-otp", {
+      const response = await axios.post("https://cybervie-backend.vercel.app/generate-otp", {
         email: formData.email,
         phone: formData.phone,
       });
@@ -70,7 +70,7 @@ const Register = () => {
           .then((result) => {
             console.log("Result",result)
             try {
-              const response =  axios.post("http://localhost:5000/register", {
+              const response =  axios.post("https://cybervie-backend.vercel.app/register", {
                 name: formData.name,
                 email: formData.email,
                 phone: formData.phone,
