@@ -92,8 +92,8 @@ const Register = () => {
     };
 
   return (
-    <div className="h-screen bg-blue-500 text-white flex flex-col items-center">
-      <div className="flex flex-col items-center justify-center rounded-lg bg-black px-12 py-4 mt-12">
+    <div className="h-screen bg-[#0c0633] text-white flex flex-col items-center">
+      <div className="flex flex-col items-center justify-center rounded-lg bg-white text-black px-12 py-4 mt-12">
         <img
           src="/assets/cybervielogo.gif"
           alt="logo"
@@ -162,9 +162,8 @@ const Register = () => {
             )}
 
              {!otpsent && <div id="recaptcha-container"></div>}
-             {/* <div id="recaptcha-container"></div> */}
             <button
-              className="border-none rounded-full bg-[#404040] px-16 py-2 mt-3"
+              className="border-none rounded-full bg-[#0c0633] text-white px-16 py-2 mt-3"
               onClick={otpsent ? registerUser : generateOtp}
             >
               {otpsent ? "Register" : "Send OTP"}
