@@ -29,11 +29,6 @@ app.use("/admin", userRoutes);
 const emailRoute = require("./routes/emailRoutes");
 app.use("/api", emailRoute);
 
-
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
 app.listen(port, () => {
   console.log(`Server started running on port ${port}`);
 });
