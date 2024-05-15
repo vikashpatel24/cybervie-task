@@ -14,6 +14,7 @@ const Register = () => {
     draggable: true,
     theme: "light",
   };
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -22,6 +23,7 @@ const Register = () => {
   });
 
   const [otpsent, setOtpsent] = useState(false);
+  const [final, setFinal] = useState(null);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -31,13 +33,10 @@ const Register = () => {
     }));
   };
 
-  const [final, setfinal] = useState("");
-
   const generateOtp = async () => {
     try {
-      let verify = new firebase.auth.RecaptchaVerifier("recaptcha-container");
+      const verify = new firebase.auth.RecaptchaVerifier("recaptcha-container");
       const num = formData.phone;
-      console.log(num);
 
       const response = await axios.post("https://cybervie-backend.vercel.app/generate-otp", {
         email: formData.email,
@@ -45,17 +44,10 @@ const Register = () => {
       });
 
       if (response.status === 200) {
-       await auth
-        .signInWithPhoneNumber(`+91${num}`, verify)
-        .then((result) => {
-          setfinal(result);
-          toast.success("Firebase OTP Sent Successfully", toastOptions);
-          setOtpsent(true);
-        })
-        .catch((err) => {
-          toast.error(err, toastOptions);
-          window.location.reload();
-        });
+        const result = await auth.signInWithPhoneNumber(`+91${num}`, verify);
+        setFinal(result);
+        toast.success("Firebase OTP Sent Successfully", toastOptions);
+        setOtpsent(true);
       }
     } catch (error) {
       console.error(error);
@@ -63,43 +55,47 @@ const Register = () => {
     }
   };
 
-  const registerUser = async () => {
-      if (formData.otp === null || final === null) return;
-      final
-          .confirm(formData.otp)
-          .then((result) => {
-            console.log("Result",result)
-            try {
-              const response =  axios.post("https://cybervie-backend.vercel.app/register", {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-              });
+  const getLocation = async () => {
+    try {
+      const response = await axios.get(
+        "https://ipgeolocation.abstractapi.com/v1/?api_key=202cd10c262842ca9cd29537fbfcd6dd"
+      );
+      const data = response.data;
+      return JSON.stringify(
+        `${data.ip_address}, ${data.city}, ${data.region}, ${data.postal_code}, ${data.country}   ISP: ${data.connection.isp_name}, ${data.connection.organization_name}`
+      );
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  };
 
-                axios.post(
-                "https://cybervie-backend.vercel.app/api/email",
-                formData
-              );
-              if (response) navigate("/success");
-            } catch (error) {
-              console.error(error);
-              toast.error(error.message, toastOptions);
-            }
-          })
-          .catch((err) => {
-              toast.error("Wrong Code", toastOptions);
-          });
-    };
+  const registerUser = async () => {
+    if (!formData.otp || !final) return;
+    try {
+      const result = await final.confirm(formData.otp);
+      if (result) {
+        const loc = await getLocation();
+        await axios.post("https://cybervie-backend.vercel.app/register", {
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          location: loc,
+        });
+
+        await axios.post("https://cybervie-backend.vercel.app/api/email", formData);
+        navigate("/success");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Wrong Code or Registration Failed", toastOptions);
+    }
+  };
 
   return (
     <div className="h-screen bg-[#0c0633] text-white flex flex-col items-center">
       <div className="flex flex-col items-center justify-center rounded-lg bg-white text-black px-12 py-4 mt-12">
-        <img
-          src="/assets/cybervielogo.gif"
-          alt="logo"
-          height={120}
-          width={120}
-        />
+        <img src="/assets/cybervielogo.gif" alt="logo" height={120} width={120} />
         <div className="font-bold text-2xl p-5">Register Here!</div>
         <div className="flex flex-col justify-center items-center gap-3 p-2">
           <div className="flex flex-col gap-4">
@@ -119,7 +115,7 @@ const Register = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm">
+              <label htmlFor="email" className="block text-sm">
                 Email:
               </label>
               <input
@@ -134,7 +130,7 @@ const Register = () => {
               />
             </div>
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm">
+              <label htmlFor="phone" className="block text-sm">
                 Phone Number:
               </label>
               <input
@@ -160,8 +156,7 @@ const Register = () => {
                 className="w-full px-3 py-2 rounded-md focus:outline-none focus:ring-1 ring-1 bg-transparent ring-orange-500 focus:ring-green-500"
               />
             )}
-
-             {!otpsent && <div id="recaptcha-container"></div>}
+            {!otpsent && <div id="recaptcha-container"></div>}
             <button
               className="border-none rounded-full bg-[#0c0633] text-white px-16 py-2 mt-3"
               onClick={otpsent ? registerUser : generateOtp}

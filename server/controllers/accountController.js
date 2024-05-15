@@ -24,35 +24,9 @@ const generateOTP = async (req, res) => {
 };
 
 const register = async (req, res) => {
-  const { name, email, phone } = req.body;
+  const { name, email, phone, loc } = req.body;
   console.log(req.body);
 
-  let loc;
-  await axios
-    .get(
-      "https://ipgeolocation.abstractapi.com/v1/?api_key=202cd10c262842ca9cd29537fbfcd6dd"
-    )
-    .then((response) => {
-      const data = response.data;
-      loc = JSON.stringify(
-        data.ip_address +
-          ", " +
-          data.city +
-          ", " +
-          data.region +
-          ", " +
-          data.postal_code +
-          ", " +
-          data.country +
-          "   ISP: " +
-          data.connection.isp_name +
-          ", " +
-          data.connection.organization_name
-      );
-    })
-    .catch((error) => {
-      console.log(error);
-    });
 
 
   // init app
